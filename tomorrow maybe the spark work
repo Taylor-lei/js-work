@@ -1,0 +1,137 @@
+ var TableInit = function () {
+		    var oTableInit = new Object();
+		    //初始化Table
+		    oTableInit.Init = function () {
+		        $('#infoTable').bootstrapTable({
+		            url: "<%=basePath%>app/getJson1",
+				method : 'get', //请求方式（*）
+				// toolbar: '#toolbar',                //工具按钮用哪个容器
+				striped : true, //是否显示行间隔色
+				cache : false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+				pagination : true, //是否显示分页（*）
+				//sortable: true,                     //是否启用排序
+				//sortOrder: "asc",                   //排序方式
+				queryParams : oTableInit.queryParams,//传递参数（*）
+				sidePagination : "server", //分页方式：client客户端分页，server服务端分页（*）
+				pageNumber : 1, //初始化加载第一页，默认第一页
+				pageSize : 15, //每页的记录行数（*）
+				pageList : [ 15, 20, 30 ], //可供选择的每页的行数（*）
+				paginationLoop: false,
+				// search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+				strictSearch : true,
+				//showColumns: true,                  //是否显示所有的列
+				//  showRefresh: true,                  //是否显示刷新按钮
+				// minimumCountColumns: 2,             //最少允许的列数
+				clickToSelect : true, //是否启用点击选中行
+				height : $(window).height() - 80, //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+				// uniqueId: "ID",                     //每一行的唯一标识，一般为主键列
+				//showToggle:true,                    //是否显示详细视图和列表视图的切换按钮
+				// cardView: false,                    //是否显示详细视图
+				detailView : false, //是否显示父子表
+				responseHandler : responseHandler,
+				columns : [ {
+					field : 'unitName',
+					title : '用户名称',
+					align : 'left',
+					valign : 'middle',
+				//sortable : true
+				}, {
+					field : 'OperType',
+					title : '地区',
+					align : 'left',
+					valign : 'middle',
+				//sortable : true
+				}, {
+					field : 'companyIndustryName',
+					title : '行业',
+					align : 'right',
+					valign : 'middle',
+				}, {
+					field : 'companyNatureName',
+					title : '企业性质',
+					align : 'right',
+					valign : 'middle',
+				}, {
+					field : 'leader',
+					title : '联系人',
+					align : 'left',
+					valign : 'middle',
+				}, {
+					field : 'leaderTel',
+					title : '联系电话',
+					align : 'right',
+					valign : 'middle',
+				}, {
+					field : 'operate',
+					title : '操作',
+					align : 'center',
+					events : operateEvents,
+					formatter : operateFormatter
+				} ]
+			});
+		};
+		//得到查询的参数
+		oTableInit.queryParams = function(params) {
+			//	alert(params.limit);
+			var temp = { //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+				limit : params.limit, //页面大小
+				offset : params.offset/params.limit, //页码
+				name : $("#name").val(),
+				industrytype : $("#industrytype").val(),
+				electri_level : $("#electri_level").val()
+			};
+			return temp;
+		};
+		return oTableInit;
+	};
+	var ButtonInit = function() {
+		var oInit = new Object();
+		var postdata = {};
+		oInit.Init = function() {
+			//初始化页面上面的按钮事件
+		};
+		return oInit;
+	};
+	//返回json串预处理
+	function responseHandler(res) {
+		if (res) {
+			return {
+				"total" : res.result.records,//总条目数
+				"rows" : res.result.rows
+			};
+		} else {
+			return {
+				"rows" : [],
+				"total" : 0
+			};
+		}
+	}
+	//事件图标生成
+	function operateFormatter(value, row, index) {
+		return [ '<a class="detail" href="javascript:void(0)" title="Detail">',
+				'<i class="glyphicon glyphicon-list-alt"></i>',
+				'</a> &nbsp ',
+				'<a class="modify" href="javascript:void(0)" title="Modify">',
+				'<i class="	glyphicon glyphicon-edit"></i>', '</a> &nbsp ',
+				'<a class="remove" href="javascript:void(0)" title="Remove">',
+				'<i class="glyphicon glyphicon-remove"></i>', '</a>  ' ]
+				.join('');
+	}
+	//图标链接事件
+	window.operateEvents = {
+		'click .detail' : function(e, value, row, index) {
+			showUserDetail(row);		
+		},
+		'click .modify' : function(e, value, row, index) {
+			modifyUserInfo(row);
+		},
+		'click .remove' : function(e, value, row, index) {		
+			deleteUser(row);
+			//$table.bootstrapTable('remove', {
+				//field : 'unitName',
+				//values : [ row.unitName ]
+			//});
+		}
+	};	
+
+
